@@ -328,10 +328,12 @@ void displayHeap(minHeap HL)
 {
 	int x;
 	
-	printf("\n\nList/Heap :: %d Elements", HL.lastNdx);   //Uncomment and COMPLETE this print statement
+	printf("\n\nList/Heap :: %d Elements", HL.lastNdx + 1);   //Uncomment and COMPLETE this print statement
 	printf("\n========================");
 	
-	//Write your code here!!! 
+	for (x = 0; x <= HL.lastNdx; x++) {
+		displayProduct(HL.prod[x]);
+	}
 }
 
 
@@ -339,10 +341,33 @@ void displayHeap(minHeap HL)
 void heapify(minHeap *H)
 {
      //Write your code here!!!
+	int i;
+	for(i = (H->lastNdx - 1)/2; i >= 0; i--) {
+		heapifySubtree(H, i);
+	}
 }
 
 
 void heapifySubtree(minHeap *H, int subroot)
 {
-     //Write your code here!!!
+    //Write your code here!!!
+	int smallest = subroot;
+	int leftChild = 2 * subroot + 1;
+	int rightChild = 2 * subroot + 2;
+
+	// compare the left child
+	if(leftChild <= H->lastNdx && strcmp(H->prod[leftChild].prodID, H->prod[smallest].prodID) < 0) {
+		smallest = leftChild;
+	}
+
+	// compare the right child
+	if(rightChild <= H->lastNdx && strcmp(H->prod[rightChild].prodID, H->prod[smallest].prodID) < 0) {
+		smallest = rightChild;
+	}
+
+	// if the smallest is not the subroot, swap the products
+	if(smallest != subroot) {
+		swapProduct(&H->prod[subroot], &H->prod[smallest]);
+		heapifySubtree(H, smallest);
+	}
 }
