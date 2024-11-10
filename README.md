@@ -15,5 +15,3 @@ A C implementation of Binary Search Tree (BST) and Heap data structures using cu
 1. Compile: `gcc ChocoList.c -o ChocoList`
 2. Run: `./ChocoList`
 
-## Implementation Details
-[Add your implementation details here]
