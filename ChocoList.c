@@ -208,13 +208,13 @@ void displayProduct(product P)
 void displayBSTAscending(BST B, VHeap V)
 {
     if(B != -1) {
-        // Traverse left subtree
+        // left subtree sa una
         displayBSTAscending(V.VH_node[B].LC, V);
         
         // Display current node
         displayProduct(V.VH_node[B].elem);
         
-        // Traverse right subtree
+        // right subtree sunod
         displayBSTAscending(V.VH_node[B].RC, V);
     }
 }
