@@ -247,52 +247,42 @@ void displayVHeap(VHeap V)
 /************************************************************
  *  Problem 2:: Function Definitions                         *
  ************************************************************/
-void insert(BST *B, VHeap *VH, product P)
-{
-    // Check if Virtual Heap is full
-    if (VH->avail == -1) {
-        printf("\nUnsuccessful Insert of Product %s: Virtual Heap is Full.", P.prodID);
-        return;
-    }
+void insert(BST *B, VHeap *VH, product P){
+	if(VH->avail != -1){
+		if(*B != -1){
+			BST *trav;
+			for(trav = B; *trav != -1;){
+				if (strcmp(VH->VH_node[*trav].elem.prodID, P.prodID) == 0) {
+					printf("\nUnsuccessful Insert of Product %s: Element exists.", P.prodID);
+					return;
+				}
+				if(strcmp(P.prodID, VH->VH_node[*trav].elem.prodID) < 0){
+					trav = &(VH->VH_node[*trav].LC);
+				} else {
+					trav = &(VH->VH_node[*trav].RC);
+				}
+			}
+			//Insert the new node at trav AAAAAAAAAAAAAAAAAAAAA
+			*trav = VH->avail;
+			VH->avail = VH->VH_node[VH->avail].RC;
+			//This sets up the new node
+			VH->VH_node[*trav].elem = P;
+			VH->VH_node[*trav].LC = -1;
+			VH->VH_node[*trav].RC = -1;
 
-    // If tree is empty, insert at root
-    if (*B == -1) {
-        *B = VH->avail;
-        VH->avail = VH->VH_node[VH->avail].RC;  // Update avail to next available
-        VH->VH_node[*B].elem = P;
-        VH->VH_node[*B].LC = -1;
-        VH->VH_node[*B].RC = -1;
-        printf("\nSuccessful Insert of Product %s.", P.prodID);
-        return;
-    }
-
-    // Use single pointer for traversal
-    BST *trav;
-    for (trav = B; *trav != -1;) {
-        // Check if element already exists
-        if (strcmp(VH->VH_node[*trav].elem.prodID, P.prodID) == 0) {
-            printf("\nUnsuccessful Insert of Product %s: Element exists.", P.prodID);
-            return;
-        }
-        
-        // Move trav to point to the appropriate child pointer
-        if (strcmp(P.prodID, VH->VH_node[*trav].elem.prodID) < 0) {
-            trav = &(VH->VH_node[*trav].LC);
-        } else {
-            trav = &(VH->VH_node[*trav].RC);
-        }
-    }
-
-    // Insert new node at trav
-    *trav = VH->avail;
-    VH->avail = VH->VH_node[VH->avail].RC;  // Update avail
-    
-    // Set up new node
-    VH->VH_node[*trav].elem = P;
-    VH->VH_node[*trav].LC = -1;
-    VH->VH_node[*trav].RC = -1;
-
-    printf("\nSuccessful Insert of Product %s.", P.prodID);
+			printf("\nSuccessful Insert of Product %s.", P.prodID);
+		} else {
+			*B = VH->avail;
+			VH->avail = VH->VH_node[VH->avail].RC;  // Update avail to next available
+			VH->VH_node[*B].elem = P;
+			VH->VH_node[*B].LC = -1;
+			VH->VH_node[*B].RC = -1;
+			
+			printf("\nSuccessful Insert of Product %s.", P.prodID);
+	    }
+    } else {
+		printf("\nUnsuccessful Insert of Product %s: Virtual Heap is Full.", P.prodID);
+	}
 }
 
 /************************************************************
@@ -318,9 +308,8 @@ minHeap populate()
 void swapProduct(product *x, product *y)
 {
 	product temp;
-	
 	temp = *x;  
-	x = y; 
+	*x = *y; 
 	*y = temp;
 }
 
@@ -335,8 +324,6 @@ void displayHeap(minHeap HL)
 		displayProduct(HL.prod[x]);
 	}
 }
-
-
  
 void heapify(minHeap *H)
 {
