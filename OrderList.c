@@ -104,36 +104,32 @@ void displayBST(orderBST root) {
     }
 }
 
-orderBST insertOrder(orderBST root, OrdInfo order) {
-    if (root != NULL) {
-        if(order.ordNum < root->order.ordNum) {
-            root->leftChild = insertOrder(root->leftChild, order);
-        } else if (order.ordNum > root->order.ordNum) {
-            root->rightChild = insertOrder(root->rightChild, order);
-        }
-    } else {
-        orderBST newNode = (orderBST)malloc(sizeof(orderNode));
-        newNode->order = order;
-        newNode->leftChild = NULL;
-        newNode->rightChild = NULL;
-        return newNode;
-    }
-    return root;
-}
-
-orderBST insertPaidOrders(orderBST B, OrdInfo orders[]) {
+orderBST insertPaidOrders(orderBST root, OrdInfo orders[]) {
     int i = 0;
     
     // Continue until we hit the sentinel (payStatus = '\0')
     while (orders[i].payStatus != '\0') {
         // Only insert if the order is paid (payStatus = '1')
         if (orders[i].payStatus == '1') {
-            B = insertOrder(B, orders[i]);
+            // Insert logic integrated here
+            if (root == NULL) {
+                orderBST newNode = (orderBST)malloc(sizeof(orderNode));
+                newNode->order = orders[i];
+                newNode->leftChild = NULL;
+                newNode->rightChild = NULL;
+                root = newNode;
+            } else {
+                if(orders[i].ordNum < root->order.ordNum) {
+                    root->leftChild = insertPaidOrders(root->leftChild, &orders[i]);
+                } else if (orders[i].ordNum > root->order.ordNum) {
+                    root->rightChild = insertPaidOrders(root->rightChild, &orders[i]);
+                }
+            }
         }
         i++;
     }
     
-    return B;
+    return root;
 }
 
 int main() {
