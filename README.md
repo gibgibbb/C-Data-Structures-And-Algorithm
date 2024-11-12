@@ -12,6 +12,7 @@ A C implementation of Binary Search Tree (BST) and Heap data structures using cu
 - Product Management System
 
 ## How to Run
-1. Compile: `gcc ChocoList.c -o ChocoList`
-2. Run: `./ChocoList`
+1. Compile: `gcc ChocoList.c -o ChocoList` // `gcc OrderList.c -o OrderList`
+2. Run: `./ChocoList` // `./OrderList`
+
 
