@@ -334,7 +334,6 @@ void heapify(minHeap *H)
 	}
 }
 
-
 void heapifySubtree(minHeap *H, int subroot)
 {
     //Write your code here!!!

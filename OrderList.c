@@ -105,10 +105,9 @@ void displayBST(orderBST root) {
 }
 
 orderBST insertPaidOrders(orderBST root, OrdInfo orders[]) {
-    int i = 0;
-    
-    // Continue until we hit the sentinel (payStatus = '\0')
-    while (orders[i].payStatus != '\0') {
+    int i;
+    // Loop until we hit the sentinel (payStatus = '\0')
+    for (i = 0; orders[i].payStatus != '\0'; i++) {
         // Only insert if the order is paid (payStatus = '1')
         if (orders[i].payStatus == '1') {
             // Insert logic integrated here
@@ -126,7 +125,6 @@ orderBST insertPaidOrders(orderBST root, OrdInfo orders[]) {
                 }
             }
         }
-        i++;
     }
     
     return root;
