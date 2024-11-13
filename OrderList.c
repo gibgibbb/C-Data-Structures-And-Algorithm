@@ -33,6 +33,49 @@ typedef struct{
     orderBST orders[MAX_ORDERS];
 }orderHeap, *orderPQ;
 
+void initializeOrders(OrdInfo orders[]);
+void populateHeap(orderHeap *H);
+void displayHeap(orderHeap *H);
+void displayOrder(OrdInfo order);
+void displayBST(orderBST root);
+orderBST insertPaidOrders(orderBST root, OrdInfo orders[]);
+float calculateTotalPrice(OrdInfo order);
+int compareOrdVal(OrdInfo order1, OrdInfo order2);
+OrdInfo serveOrder(orderHeap *H);
+
+int main() {
+    orderBST B = NULL;
+    OrdInfo orders[MAX_ORDERS];
+    
+    // Initialize orders
+    initializeOrders(orders);
+    
+    // Insert paid orders into BST
+    B = insertPaidOrders(B, orders);
+    
+    // Display the BST (in-order traversal)
+    printf("\nOrders in BST (ascending order):\n");
+    displayBST(B);
+
+    orderHeap H;
+    H.lastOrd = -1;
+
+    populateHeap(&H);
+    printf("\nInitial Heap:\n");
+    displayHeap(&H);
+
+    printf("\n\nServing Orders:");
+    for(int i = 0; i < 3; i++) {
+        OrdInfo served = serveOrder(&H);
+        printf("\n\nServed Order #%d", served.ordNum);
+        printf("\nTotal Price: %.2f", calculateTotalPrice(served));
+        
+        printf("\nRemaining Heap:");
+        displayHeap(&H);
+    }
+    return 0;
+}
+
 void initializeOrders(OrdInfo orders[]) {
     // Order 1
     orders[0].ordNum = 101;
@@ -85,6 +128,131 @@ void initializeOrders(OrdInfo orders[]) {
     orders[5].ordList = NULL;
 }
 
+void populateHeap(orderHeap *H) {
+    // Create sample orders
+    OrdInfo orders[6];  // 5 orders + 1 sentinel
+
+    // Order 1: Multiple items
+    orders[0].ordNum = 201;
+    orders[0].payStatus = '1';
+    orders[0].ordList = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[0].ordList->item.mealCode, "M1");
+    strcpy(orders[0].ordList->item.mealName, "Burger Combo");
+    orders[0].ordList->item.price = 199.50;
+    
+    // Add second item to Order 1
+    orders[0].ordList->next = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[0].ordList->next->item.mealCode, "M2");
+    strcpy(orders[0].ordList->next->item.mealName, "Fries");
+    orders[0].ordList->next->item.price = 50.00;
+    orders[0].ordList->next->next = NULL;
+    // Total: 249.50
+
+    // Order 2: Single expensive item
+    orders[1].ordNum = 202;
+    orders[1].payStatus = '1';
+    orders[1].ordList = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[1].ordList->item.mealCode, "M3");
+    strcpy(orders[1].ordList->item.mealName, "Premium Steak");
+    orders[1].ordList->item.price = 399.99;
+    orders[1].ordList->next = NULL;
+    // Total: 399.99
+
+    // Order 3: Multiple medium-priced items
+    orders[2].ordNum = 203;
+    orders[2].payStatus = '1';
+    orders[2].ordList = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[2].ordList->item.mealCode, "M4");
+    strcpy(orders[2].ordList->item.mealName, "Pizza");
+    orders[2].ordList->item.price = 150.00;
+    
+    orders[2].ordList->next = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[2].ordList->next->item.mealCode, "M5");
+    strcpy(orders[2].ordList->next->item.mealName, "Pasta");
+    orders[2].ordList->next->item.price = 120.00;
+    orders[2].ordList->next->next = NULL;
+    // Total: 270.00
+
+    // Order 4: Single cheap item
+    orders[3].ordNum = 204;
+    orders[3].payStatus = '1';
+    orders[3].ordList = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[3].ordList->item.mealCode, "M6");
+    strcpy(orders[3].ordList->item.mealName, "Ice Cream");
+    orders[3].ordList->item.price = 49.99;
+    orders[3].ordList->next = NULL;
+    // Total: 49.99
+
+    // Order 5: Multiple items
+    orders[4].ordNum = 205;
+    orders[4].payStatus = '1';
+    orders[4].ordList = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[4].ordList->item.mealCode, "M7");
+    strcpy(orders[4].ordList->item.mealName, "Family Meal");
+    orders[4].ordList->item.price = 299.99;
+    
+    orders[4].ordList->next = (OrdLL)malloc(sizeof(OrdLLNode));
+    strcpy(orders[4].ordList->next->item.mealCode, "M8");
+    strcpy(orders[4].ordList->next->item.mealName, "Dessert");
+    orders[4].ordList->next->item.price = 89.99;
+    orders[4].ordList->next->next = NULL;
+    // Total: 389.98
+
+    // Insert orders into heap
+    for(int i = 0; i < 5; i++) {
+        H->lastOrd++;
+        H->orders[H->lastOrd] = (orderBST)malloc(sizeof(orderNode));
+        H->orders[H->lastOrd]->order = orders[i];
+        H->orders[H->lastOrd]->leftChild = NULL;
+        H->orders[H->lastOrd]->rightChild = NULL;
+    }
+
+    // Heapify the entire array to maintain max heap property
+for(int i = H->lastOrd/2; i >= 0; i--) {
+    int index = i;
+    while (1) {
+        int largest = index;
+        int leftChild = 2 * index + 1;
+        int rightChild = 2 * index + 2;
+        
+        if (leftChild <= H->lastOrd && 
+            compareOrdVal(H->orders[leftChild]->order, H->orders[largest]->order) > 0) {
+            largest = leftChild;
+        }
+        
+        if (rightChild <= H->lastOrd && 
+            compareOrdVal(H->orders[rightChild]->order, H->orders[largest]->order) > 0) {
+            largest = rightChild;
+        }
+        
+        if (largest != index) {
+            orderBST temp = H->orders[index];
+            H->orders[index] = H->orders[largest];
+            H->orders[largest] = temp;
+            index = largest;
+        } else {
+            break;
+        }
+    }
+}
+}
+
+void displayHeap(orderHeap *H) {
+    printf("\nHeap Contents (Total Price Order):");
+    printf("\n================================");
+    for(int i = 0; i <= H->lastOrd; i++) {
+        printf("\nOrder #%d", H->orders[i]->order.ordNum);
+        printf("\nTotal Price: %.2f", calculateTotalPrice(H->orders[i]->order));
+        printf("\nItems:");
+        OrdLL current = H->orders[i]->order.ordList;
+        while(current != NULL) {
+            printf("\n  - %s: %.2f", current->item.mealName, current->item.price);
+            current = current->next;
+        }
+        printf("\n-----------------");
+    }
+}
+
 // Add this display function to verify the BST
 void displayOrder(OrdInfo order) {
     printf("\nOrder #: %d", order.ordNum);
@@ -125,24 +293,72 @@ orderBST insertPaidOrders(orderBST root, OrdInfo orders[]) {
                 }
             }
         }
-    }
-    
+    } 
     return root;
 }
 
-int main() {
-    orderBST B = NULL;
-    OrdInfo orders[MAX_ORDERS];
+float calculateTotalPrice(OrdInfo order) {
+    float total = 0;
+    OrdLL current = order.ordList;
     
-    // Initialize orders
-    initializeOrders(orders);
+    while (current != NULL) {
+        total += current->item.price;
+        current = current->next;
+    }
     
-    // Insert paid orders into BST
-    B = insertPaidOrders(B, orders);
+    return total;
+}
+
+int compareOrdVal(OrdInfo order1, OrdInfo order2) {
+    float total1 = calculateTotalPrice(order1);
+    float total2 = calculateTotalPrice(order2);
     
-    // Display the BST (in-order traversal)
-    printf("\nOrders in BST (ascending order):\n");
-    displayBST(B);
+    if (total1 == total2) return 0;
+    if (total1 > total2) return 1;
+    return -1;
+}
+
+OrdInfo serveOrder(orderHeap *H) {
+    OrdInfo emptyOrder = {0, NULL, '\0'};  // Sentinel value
     
-    return 0;
+    // Check if heap is empty
+    if (H->lastOrd == -1) {
+        return emptyOrder;
+    }
+    
+    // Store the root order (highest priority)
+    OrdInfo highestOrder = H->orders[0]->order;
+    
+    // Replace root with last element
+    H->orders[0] = H->orders[H->lastOrd];
+    H->lastOrd--;
+    
+    // Heapify from root (if heap is not empty)
+     if (H->lastOrd > -1) {
+        for (int index = 0; ; ) {
+            int largest = index;
+            int leftChild = 2 * index + 1;
+            int rightChild = 2 * index + 2;
+            
+            if (leftChild <= H->lastOrd && 
+                compareOrdVal(H->orders[leftChild]->order, H->orders[largest]->order) > 0) {
+                largest = leftChild;
+            }
+            
+            if (rightChild <= H->lastOrd && 
+                compareOrdVal(H->orders[rightChild]->order, H->orders[largest]->order) > 0) {
+                largest = rightChild;
+            }
+            
+            if (largest != index) {
+                orderBST temp = H->orders[index];
+                H->orders[index] = H->orders[largest];
+                H->orders[largest] = temp;
+                index = largest;
+            } else {
+                break;  // Heap property is restored
+            }
+        }
+    }
+    return highestOrder;
 }
