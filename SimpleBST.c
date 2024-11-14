@@ -23,21 +23,14 @@ void insert(BST *B, int item) {
     *trav = (BST)malloc(sizeof(NodeType));
     if(*trav != NULL) {
         (*trav)->data = item;
-        (*trav)->left = NULL;
-        (*trav)->right = NULL;
+        (*trav)->left = (*trav)->right = NULL;
     }
 }
 
 void delete(BST *B, int item) {
     BST *trav, temp;
     
-    for(trav = B; *trav != NULL && (*trav)->data != item;) {
-        if(item < (*trav)->data) {
-            trav = &(*trav)->left;
-        } else {
-            trav = &(*trav)->right;
-        }
-    }
+    for(trav = B; *trav != NULL && (*trav)->data != item; trav = (item < (*trav)->data) ? &(*trav)->left : &(*trav)->right) {}
     
     if(*trav != NULL) {
         if((*trav)->left == NULL) {
@@ -49,7 +42,6 @@ void delete(BST *B, int item) {
             *trav = (*trav)->left;
             free(temp);
         } else {
-            // Node has two children
             for(temp = (*trav)->right; temp->left != NULL; temp = temp->left) {}
             (*trav)->data = temp->data;
             delete(&(*trav)->right, temp->data);
