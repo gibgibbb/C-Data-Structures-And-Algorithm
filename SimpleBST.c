@@ -14,6 +14,7 @@ void inOrder(BST B);
 void preOrder(BST B);
 void postOrder(BST B);
 void display(BST B);
+int height(BST B);
 
 void insert(BST *B, int item) {
     BST *trav;
@@ -36,11 +37,9 @@ void delete(BST *B, int item) {
         if((*trav)->left == NULL) {
             temp = *trav;
             *trav = (*trav)->right;
-            free(temp);
         } else if((*trav)->right == NULL) {
             temp = *trav;
             *trav = (*trav)->left;
-            free(temp);
         } else {
             for(temp = (*trav)->right; temp->left != NULL; temp = temp->left) {}
             (*trav)->data = temp->data;
@@ -83,6 +82,10 @@ void display(BST B) {
     printf("\n");
 }
 
+int height(BST B){
+    return (B != NULL) ? 1 + (height(B->left) > height(B->right) ? height(B->left) : height(B->right)) : -1;
+}
+
 int main() {
     BST tree = NULL;
     
@@ -106,5 +109,9 @@ int main() {
     printf("\nAfter deletion:");
     display(tree);
     
+    int treeH = height(tree);
+
+    printf("The height of the tree is %d", treeH);
+
     return 0;
 }
