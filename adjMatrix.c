@@ -1,49 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX 10
-#define INF 99999999
 
-typedef int adjMatrix[MAX][MAX];
-typedef struct{
-    int u, v;
-    int weight;
+#define MAX 10
+#define INFINITY 99999999
+#define NULL_VERTEX -1
+
+typedef int LabelAdjMat[MAX][MAX];
+typedef struct {
+    int u, v, weight;
 }edgeType;
 
-typedef struct node{
-    edgeType E;
-    struct node *next;
-}*edgeList;
+edgeType *populateEdgeType();
+void populateAdjMat(LabelAdjMat adjMat, edgeType *edges, int numEdges);
 
-edgeList createEdgeList(adjMatrix AM);
-void displayEdgeList(edgeList EL);
-
-edgeList createEdgeList(adjMatrix AM){
-    int x, y;
-    edgeList retList = NULL, temp, *trav;
-    for(x = 1; x < MAX; x++){
-        for(y = 0; y < x; y++){
-            if(AM[x][y] != INF){
-                temp = (edgeList)malloc(sizeof(struct node));
-                temp->E.u = x;
-                temp->E.v = y;
-                temp->E.weight = AM[x][y];
-                temp->next = NULL;
-                for(trav = &retList; *trav != NULL && (*trav)->E.weight < temp->E.weight; trav = &(*trav)->next){}
-                temp->next = *trav;
-                *trav = temp;
-            }
+void populateAdjMat(LabelAdjMat adjMat, edgeType *edges, int numEdges){
+    for(int i = 0; i < MAX; i++){
+        for(int j = 0; j < MAX; j++){
+            adjMat[i][j] = 0;
         }
     }
-    return retList;
+    
+    for(int i = 0; i < numEdges; i++){
+        adjMat[edges[i].u][edges[i].v] = edges[i].weight;
+    }
 }
 
-void displayEdgeList(edgeList EL){
+edgeType *populateEdgeType(){
+    edgeType edges[] = {
+        {0, 1, 10},
+        {0, 2, 3},
+        {1, 2, 1},
+        {2, 1, 4},
+        {1, 3, 2},
+        {2, 3, 2},
+        {3, 4, 7},
+        {3, 0, 8},  
+        {4, 3, 9},
+        {4, 0, 5}
+    };
 
+    return edges;
 }
 
 int main(){
+    LabelAdjMat adjMat;
+    edgeType *edges = populateEdgeType();
+    int numEdges = sizeof(edges) / sizeof(edges[0]);
 
-    adjMatrix AM;
+    populateAdjMat(adjMat, edges, numEdges);
 
     return 0;
 }
+
+
